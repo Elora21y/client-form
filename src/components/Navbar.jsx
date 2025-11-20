@@ -19,7 +19,7 @@ const Navbar = () => {
         </li>
       </ul>
     </div>
-    <Link href='/' className="btn btn-ghost text-xl">daisyUI</Link>
+    <Link href='/' className="btn btn-ghost text-xl">KBN Production</Link>
   </div>
   <div className="navbar-center hidden lg:flex">
     <ul className="menu menu-horizontal px-1">
