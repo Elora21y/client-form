@@ -1,36 +1,47 @@
 import mongoose from 'mongoose';
 
 const ServiceSchema = new mongoose.Schema({
-  service: {
+  heading: {
     type: String,
-    required: true
+    required: [true, 'Service heading is required']
+  },
+  details: {
+    type: String,
+    required: [true, 'Service details are required']
   },
   quantity: {
     type: Number,
-    required: true
+    required: true,
+    min: 1,
+    default: 1
   },
   price: {
     type: Number,
-    required: true
+    required: true,
+    min: 0
   }
 });
 
 const QuotationSchema = new mongoose.Schema({
   clientName: {
     type: String,
-    required: true
+    required: [true, 'Client name is required'],
+    trim: true
   },
   companyName: {
     type: String,
-    required: true
+    required: [true, 'Company name is required'],
+    trim: true
   },
   address: {
     type: String,
-    required: true
+    required: [true, 'Address is required'],
+    trim: true
   },
   phone: {
     type: String,
-    required: true
+    required: [true, 'Phone/Email is required'],
+    trim: true
   },
   date: {
     type: String,
@@ -43,19 +54,34 @@ const QuotationSchema = new mongoose.Schema({
   quotationNo: {
     type: String,
     required: true,
-    unique: true
+    unique: true,
+    index: true
   },
-  services: [ServiceSchema],
+  services: {
+    type: [ServiceSchema],
+    validate: {
+      validator: function(v) {
+        return v && v.length > 0;
+      },
+      message: 'At least one service is required'
+    }
+  },
   totalAmount: {
     type: Number,
-    required: true
-  },
-  createdAt: {
-    type: Date,
-    default: Date.now
+    required: true,
+    min: 0
   }
 }, {
   timestamps: true
 });
 
-export default mongoose.models.Quotation || mongoose.model('Quotation', QuotationSchema);
+// Index for faster queries
+QuotationSchema.index({ createdAt: -1 });
+QuotationSchema.index({ quotationNo: 1 });
+
+// Delete old model if exists
+if (mongoose.models.Quotation) {
+  delete mongoose.models.Quotation;
+}
+
+export default mongoose.model('Quotation', QuotationSchema);
