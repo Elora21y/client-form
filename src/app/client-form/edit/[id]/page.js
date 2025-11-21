@@ -8,9 +8,7 @@ export default function EditQuotationForm() {
   const router = useRouter();
   const params = useParams();
   const quotationId = params.id;
-//   console.log(params, params.id)
 
-  const [darkMode, setDarkMode] = useState(false);
   const [loading, setLoading] = useState(false);
   const [fetchingData, setFetchingData] = useState(true);
   const [message, setMessage] = useState({ type: '', text: '' });
@@ -38,62 +36,61 @@ export default function EditQuotationForm() {
 
   // Load existing quotation data
   useEffect(() => {
-  const fetchQuotationData = async () => {
-    try {
-      setFetchingData(true);
-      const response = await fetch(`/api/quotations/${quotationId}`);
-      const data = await response.json();
-      console.log(quotationId)
-      if (data.success) {
-        const q = data.data;
+    const fetchQuotationData = async () => {
+      try {
+        setFetchingData(true);
+        const response = await fetch(`/api/quotations/${quotationId}`);
+        const data = await response.json();
         
-        // Set client info
-        setClientInfo({
-          clientName: q.clientName,
-          companyName: q.companyName,
-          address: q.address,
-          phone: q.phone,
-          date: q.date,
-          validUntil: q.validUntil,
-          quotationNo: q.quotationNo
-        });
-
-        // Parse services and reconstruct selectedDetails from details string
-        const parsedServices = q.services.map((service, idx) => {
-          const detailsArray = service.details ? service.details.split(', ') : [];
+        if (data.success) {
+          const q = data.data;
           
-          return {
-            id: Date.now() + idx,
-            heading: service.heading,
-            selectedDetails: detailsArray,
-            otherDetails: '',
-            quantity: service.quantity.toString(),
-            price: service.price.toString()
-          };
-        });
+          // Set client info
+          setClientInfo({
+            clientName: q.clientName,
+            companyName: q.companyName,
+            address: q.address,
+            phone: q.phone,
+            date: q.date,
+            validUntil: q.validUntil,
+            quotationNo: q.quotationNo
+          });
 
-        setServices(parsedServices.length > 0 ? parsedServices : [{
-          id: Date.now(),
-          heading: '',
-          selectedDetails: [],
-          otherDetails: '',
-          quantity: '',
-          price: ''
-        }]);
-      } else {
-        showMessage('error', 'Failed to load quotation data');
+          // Parse services and reconstruct selectedDetails from details string
+          const parsedServices = q.services.map((service, idx) => {
+            const detailsArray = service.details ? service.details.split(', ') : [];
+            
+            return {
+              id: Date.now() + idx,
+              heading: service.heading,
+              selectedDetails: detailsArray,
+              otherDetails: '',
+              quantity: service.quantity.toString(),
+              price: service.price.toString()
+            };
+          });
+
+          setServices(parsedServices.length > 0 ? parsedServices : [{
+            id: Date.now(),
+            heading: '',
+            selectedDetails: [],
+            otherDetails: '',
+            quantity: '',
+            price: ''
+          }]);
+        } else {
+          showMessage('error', 'Failed to load quotation data');
+        }
+      } catch (error) {
+        console.error('Error fetching quotation:', error);
+        showMessage('error', 'Error loading quotation');
+      } finally {
+        setFetchingData(false);
       }
-    } catch (error) {
-      console.error('Error fetching quotation:', error);
-      showMessage('error', 'Error loading quotation');
-    } finally {
-      setFetchingData(false);
-    }
-  };
+    };
 
     fetchQuotationData();
   }, [quotationId]);
-
 
   const serviceDetailOptions = [
     'Drone & aerial shot',
@@ -275,26 +272,21 @@ export default function EditQuotationForm() {
   }
 
   return (
-    <div className={`min-h-screen transition-colors duration-300 bg-gradient-to-br from-slate-50 to-slate-100'
-     p-4 md:p-8`}>
-      <div className={`max-w-6xl mx-auto rounded-2xl shadow-xl overflow-hidden
-        bg-white
-      `}>
+    <div className="min-h-screen transition-colors duration-300 bg-gradient-to-br from-slate-50 to-slate-100 p-4 md:p-8">
+      <div className="max-w-6xl mx-auto rounded-2xl shadow-xl overflow-hidden bg-white">
         {/* Header */}
         <div className="bg-gradient-to-r from-blue-600 to-blue-700 p-6 md:p-8">
-          <div className="flex items-center justify-between mb-2">
-            <div className="flex items-center gap-3">
-              <Link 
-                href="/quotations"
-                className="p-2 rounded-lg hover:bg-opacity-30 transition-all"
-              >
-                <ArrowLeft className="w-6 h-6 text-white" />
-              </Link>
-              <FileText className="w-8 h-8 text-white" />
-              <div>
-                <h1 className="text-2xl md:text-3xl font-bold text-white">Edit Quotation</h1>
-                <p className="text-blue-100 text-sm">Update quotation details</p>
-              </div>
+          <div className="flex items-center gap-3 mb-2">
+            <Link 
+              href="/quotations"
+              className="p-2 bg-white bg-opacity-20 rounded-lg hover:bg-opacity-30 transition-all"
+            >
+              <ArrowLeft className="w-6 h-6 text-white" />
+            </Link>
+            <FileText className="w-8 h-8 text-white" />
+            <div>
+              <h1 className="text-2xl md:text-3xl font-bold text-white">Edit Quotation</h1>
+              <p className="text-blue-100 text-sm">Update quotation details</p>
             </div>
           </div>
         </div>
@@ -313,139 +305,95 @@ export default function EditQuotationForm() {
         <div className="p-6 md:p-8">
           {/* Client Information */}
           <div className="mb-8">
-            <h2 className={`text-xl font-semibold mb-4 pb-2 border-b-2 border-blue-500 ${
-              darkMode ? 'text-white' : 'text-gray-800'
-            }`}>
+            <h2 className="text-xl font-semibold mb-4 pb-2 border-b-2 border-blue-500 text-gray-800">
               Client Information
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className={`block text-sm font-medium mb-1 ${
-                  darkMode ? 'text-gray-300' : 'text-gray-700'
-                }`}>
+                <label className="block text-sm font-medium mb-1 text-gray-700">
                   Client Name *
                 </label>
                 <input
                   type="text"
                   value={clientInfo.clientName}
                   onChange={(e) => handleClientChange('clientName', e.target.value)}
-                  className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
-                    darkMode 
-                      ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400' 
-                      : 'bg-white border-gray-300 text-gray-900'
-                  }`}
+                  className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white border-gray-300 text-gray-900"
                   placeholder="Enter client name"
                 />
               </div>
 
               <div>
-                <label className={`block text-sm font-medium mb-1 ${
-                  darkMode ? 'text-gray-300' : 'text-gray-700'
-                }`}>
+                <label className="block text-sm font-medium mb-1 text-gray-700">
                   Company Name *
                 </label>
                 <input
                   type="text"
                   value={clientInfo.companyName}
                   onChange={(e) => handleClientChange('companyName', e.target.value)}
-                  className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
-                    darkMode 
-                      ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400' 
-                      : 'bg-white border-gray-300 text-gray-900'
-                  }`}
+                  className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white border-gray-300 text-gray-900"
                   placeholder="Enter company name"
                 />
               </div>
 
               <div className="md:col-span-2">
-                <label className={`block text-sm font-medium mb-1 ${
-                  darkMode ? 'text-gray-300' : 'text-gray-700'
-                }`}>
+                <label className="block text-sm font-medium mb-1 text-gray-700">
                   Address *
                 </label>
                 <input
                   type="text"
                   value={clientInfo.address}
                   onChange={(e) => handleClientChange('address', e.target.value)}
-                  className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
-                    darkMode 
-                      ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400' 
-                      : 'bg-white border-gray-300 text-gray-900'
-                  }`}
+                  className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white border-gray-300 text-gray-900"
                   placeholder="Enter full address"
                 />
               </div>
 
               <div>
-                <label className={`block text-sm font-medium mb-1 ${
-                  darkMode ? 'text-gray-300' : 'text-gray-700'
-                }`}>
-                  Phone Number *
+                <label className="block text-sm font-medium mb-1 text-gray-700">
+                  Phone/Email *
                 </label>
                 <input
                   type="text"
                   value={clientInfo.phone}
                   onChange={(e) => handleClientChange('phone', e.target.value)}
-                  className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
-                    darkMode 
-                      ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400' 
-                      : 'bg-white border-gray-300 text-gray-900'
-                  }`}
+                  className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white border-gray-300 text-gray-900"
                   placeholder="+880 XXXXXXXXXX"
                 />
               </div>
 
               <div>
-                <label className={`block text-sm font-medium mb-1 ${
-                  darkMode ? 'text-gray-300' : 'text-gray-700'
-                }`}>
+                <label className="block text-sm font-medium mb-1 text-gray-700">
                   Quotation No
                 </label>
                 <input
                   type="text"
                   value={clientInfo.quotationNo}
                   readOnly
-                  className={`w-full px-4 py-2 border rounded-lg ${
-                    darkMode 
-                      ? 'bg-gray-900 border-gray-600 text-gray-400 cursor-not-allowed' 
-                      : 'bg-gray-50 border-gray-300 text-gray-600 cursor-not-allowed'
-                  }`}
+                  className="w-full px-4 py-2 border rounded-lg bg-gray-50 border-gray-300 text-gray-600 cursor-not-allowed"
                 />
               </div>
 
               <div>
-                <label className={`block text-sm font-medium mb-1 ${
-                  darkMode ? 'text-gray-300' : 'text-gray-700'
-                }`}>
+                <label className="block text-sm font-medium mb-1 text-gray-700">
                   Date *
                 </label>
                 <input
                   type="date"
                   value={clientInfo.date}
                   onChange={(e) => handleClientChange('date', e.target.value)}
-                  className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
-                    darkMode 
-                      ? 'bg-gray-700 border-gray-600 text-white' 
-                      : 'bg-white border-gray-300 text-gray-900'
-                  }`}
+                  className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white border-gray-300 text-gray-900"
                 />
               </div>
 
               <div>
-                <label className={`block text-sm font-medium mb-1 ${
-                  darkMode ? 'text-gray-300' : 'text-gray-700'
-                }`}>
+                <label className="block text-sm font-medium mb-1 text-gray-700">
                   Valid Until *
                 </label>
                 <input
                   type="date"
                   value={clientInfo.validUntil}
                   onChange={(e) => handleClientChange('validUntil', e.target.value)}
-                  className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
-                    darkMode 
-                      ? 'bg-gray-700 border-gray-600 text-white' 
-                      : 'bg-white border-gray-300 text-gray-900'
-                  }`}
+                  className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white border-gray-300 text-gray-900"
                 />
               </div>
             </div>
@@ -453,38 +401,26 @@ export default function EditQuotationForm() {
 
           {/* Service Description & Pricing */}
           <div className="mb-8">
-            <h2 className={`text-xl font-semibold mb-4 pb-2 border-b-2 border-blue-500 ${
-              darkMode ? 'text-white' : 'text-gray-800'
-            }`}>
+            <h2 className="text-xl font-semibold mb-4 pb-2 border-b-2 border-blue-500 text-gray-800">
               Service Heading, Description & Pricing
             </h2>
             
             <div className="space-y-6">
               {services.map((service, index) => (
-                <div key={service.id} className={`p-5 rounded-lg border ${
-                  darkMode 
-                    ? 'bg-gray-700 border-gray-600' 
-                    : 'bg-gray-50 border-gray-200'
-                }`}>
+                <div key={service.id} className="p-5 rounded-lg border bg-gray-50 border-gray-200">
                   <div className="flex items-start gap-3 mb-4">
                     <div className="flex-shrink-0 w-8 h-8 bg-blue-600 text-white rounded-full flex items-center justify-center font-semibold">
                       {index + 1}
                     </div>
                     <div className="flex-1">
-                      <label className={`block text-sm font-medium mb-1 ${
-                        darkMode ? 'text-gray-300' : 'text-gray-700'
-                      }`}>
+                      <label className="block text-sm font-medium mb-1 text-gray-700">
                         Service Heading *
                       </label>
                       <input
                         type="text"
                         value={service.heading}
                         onChange={(e) => handleServiceChange(service.id, 'heading', e.target.value)}
-                        className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
-                          darkMode 
-                            ? 'bg-gray-600 border-gray-500 text-white placeholder-gray-400' 
-                            : 'bg-white border-gray-300 text-gray-900'
-                        }`}
+                        className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white border-gray-300 text-gray-900"
                         placeholder="e.g., Commercial video ad production"
                       />
                     </div>
@@ -501,20 +437,14 @@ export default function EditQuotationForm() {
 
                   {/* Checkbox Options */}
                   <div className="ml-11 mb-4">
-                    <label className={`block text-sm font-medium mb-2 ${
-                      darkMode ? 'text-gray-300' : 'text-gray-700'
-                    }`}>
+                    <label className="block text-sm font-medium mb-2 text-gray-700">
                       Service Details (Select one or more) *
                     </label>
-                    <div className={`grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2 p-4 rounded-lg ${
-                      darkMode ? 'bg-gray-800' : 'bg-white'
-                    }`}>
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2 p-4 rounded-lg bg-white">
                       {serviceDetailOptions.map((option, idx) => (
                         <label
                           key={idx}
-                          className={`flex items-center space-x-2 cursor-pointer p-2 rounded hover:bg-opacity-50 ${
-                            darkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-100'
-                          }`}
+                          className="flex items-center space-x-2 cursor-pointer p-2 rounded hover:bg-gray-100"
                         >
                           <input
                             type="checkbox"
@@ -522,9 +452,7 @@ export default function EditQuotationForm() {
                             onChange={() => handleCheckboxChange(service.id, option)}
                             className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
                           />
-                          <span className={`text-sm ${
-                            darkMode ? 'text-gray-300' : 'text-gray-700'
-                          }`}>
+                          <span className="text-sm text-gray-700">
                             {option}
                           </span>
                         </label>
@@ -534,20 +462,14 @@ export default function EditQuotationForm() {
 
                   {/* Others Field */}
                   <div className="ml-11 mb-4">
-                    <label className={`block text-sm font-medium mb-1 ${
-                      darkMode ? 'text-gray-300' : 'text-gray-700'
-                    }`}>
+                    <label className="block text-sm font-medium mb-1 text-gray-700">
                       Others (Write custom details)
                     </label>
                     <textarea
                       value={service.otherDetails}
                       onChange={(e) => handleServiceChange(service.id, 'otherDetails', e.target.value)}
                       rows="2"
-                      className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
-                        darkMode 
-                          ? 'bg-gray-600 border-gray-500 text-white placeholder-gray-400' 
-                          : 'bg-white border-gray-300 text-gray-900'
-                      }`}
+                      className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white border-gray-300 text-gray-900"
                       placeholder="Add any custom service details here..."
                     />
                   </div>
@@ -555,9 +477,7 @@ export default function EditQuotationForm() {
                   {/* Quantity and Price */}
                   <div className="ml-11 grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                      <label className={`block text-sm font-medium mb-1 ${
-                        darkMode ? 'text-gray-300' : 'text-gray-700'
-                      }`}>
+                      <label className="block text-sm font-medium mb-1 text-gray-700">
                         Quantity *
                       </label>
                       <input
@@ -565,19 +485,13 @@ export default function EditQuotationForm() {
                         min="1"
                         value={service.quantity}
                         onChange={(e) => handleServiceChange(service.id, 'quantity', e.target.value)}
-                        className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
-                          darkMode 
-                            ? 'bg-gray-600 border-gray-500 text-white placeholder-gray-400' 
-                            : 'bg-white border-gray-300 text-gray-900'
-                        }`}
+                        className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white border-gray-300 text-gray-900"
                         placeholder="1"
                       />
                     </div>
 
                     <div>
-                      <label className={`block text-sm font-medium mb-1 ${
-                        darkMode ? 'text-gray-300' : 'text-gray-700'
-                      }`}>
+                      <label className="block text-sm font-medium mb-1 text-gray-700">
                         Price (BDT) *
                       </label>
                       <input
@@ -586,11 +500,7 @@ export default function EditQuotationForm() {
                         step="0.01"
                         value={service.price}
                         onChange={(e) => handleServiceChange(service.id, 'price', e.target.value)}
-                        className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
-                          darkMode 
-                            ? 'bg-gray-600 border-gray-500 text-white placeholder-gray-400' 
-                            : 'bg-white border-gray-300 text-gray-900'
-                        }`}
+                        className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white border-gray-300 text-gray-900"
                         placeholder="0"
                       />
                     </div>
@@ -598,13 +508,9 @@ export default function EditQuotationForm() {
 
                   {/* Subtotal */}
                   {service.heading && parseFloat(service.price) > 0 && (
-                    <div className={`mt-4 ml-11 p-3 rounded-lg ${
-                      darkMode ? 'bg-gray-800' : 'bg-blue-50'
-                    }`}>
+                    <div className="mt-4 ml-11 p-3 rounded-lg bg-blue-50">
                       <div className="flex justify-between items-center">
-                        <span className={`text-sm font-medium ${
-                          darkMode ? 'text-gray-300' : 'text-gray-700'
-                        }`}>
+                        <span className="text-sm font-medium text-gray-700">
                           Subtotal:
                         </span>
                         <span className="text-lg font-bold text-blue-600">
@@ -612,9 +518,7 @@ export default function EditQuotationForm() {
                         </span>
                       </div>
                       {(service.selectedDetails?.length > 0 || service.otherDetails?.trim()) && (
-                        <div className={`mt-2 text-xs ${
-                          darkMode ? 'text-gray-400' : 'text-gray-600'
-                        }`}>
+                        <div className="mt-2 text-xs text-gray-600">
                           <strong>Includes:</strong> {service.selectedDetails?.join(', ')}
                           {service.otherDetails?.trim() && (service.selectedDetails?.length > 0 ? ', ' : '') + service.otherDetails}
                         </div>
@@ -635,18 +539,10 @@ export default function EditQuotationForm() {
           </div>
 
           {/* Total Amount */}
-          <div className={`p-6 rounded-lg mb-6 ${
-            darkMode 
-              ? 'bg-gradient-to-r from-blue-900 to-blue-800' 
-              : 'bg-gradient-to-r from-blue-50 to-blue-100'
-          }`}>
+          <div className="p-6 rounded-lg mb-6 bg-gradient-to-r from-blue-50 to-blue-100">
             <div className="flex justify-between items-center">
-              <span className={`text-lg font-semibold ${
-                darkMode ? 'text-white' : 'text-gray-800'
-              }`}>Total Amount:</span>
-              <span className={`text-3xl font-bold ${
-                darkMode ? 'text-blue-300' : 'text-blue-700'
-              }`}>
+              <span className="text-lg font-semibold text-gray-800">Total Amount:</span>
+              <span className="text-3xl font-bold text-blue-700">
                 ৳{calculateTotal().toLocaleString()}
               </span>
             </div>
