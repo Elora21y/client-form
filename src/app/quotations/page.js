@@ -477,6 +477,13 @@ export default function QuotationsPage() {
                         <Edit className="w-4 h-4" />
                         Edit
                       </Link>
+                      <Link
+    href={`/quotations/view/${q._id}`}
+    className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
+  >
+    <FileText className="w-4 h-4" />
+    View PDF
+  </Link>
                     </div>
                   </div>
                 </div>

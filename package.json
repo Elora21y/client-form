@@ -10,6 +10,8 @@
   },
   "dependencies": {
     "daisyui": "^5.5.5",
+    "html2canvas": "^1.4.1",
+    "jspdf": "^3.0.4",
     "lucide-react": "^0.553.0",
     "mongodb": "^7.0.0",
     "mongoose": "^8.19.4",
